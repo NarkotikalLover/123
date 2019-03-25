@@ -139,7 +139,7 @@ foreach($arr[$id] as $k => $v){
 	$indexCASE=$id;
 	$encode =  $v[0];
 
-		if($caseR[$id][$k]["open"] !== "true" || $caseR[$id][$k]["price"] == ""){
+		if($caseR[$id][$k]["open"] !== "true" || $caseR[$id][$k]["price"] == "50"){
 		$selected = '
 <td><select name="'.$k.'[open]"  onChange="this.style.color=this.options[this.selectedIndex].style.color"   style="color:red" class="form-control">
 <option style="color:green"  value="true" >Вкл</option>
