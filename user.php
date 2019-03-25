@@ -1,27 +1,139 @@
-﻿<? 
+<?
 
-if(trim($_COOKIE["token"]) !== ""){
-$token = $_COOKIE["token"];
-
+if($_SERVER["PHP_SELF"] !== "/admin.php"){
+	header('Location: http://'.$_SERVER["HTTP_HOST"].'/admin.php');exit;
+}
+$host = $_SERVER["HTTP_HOST"];
+//error_reporting(0);
 include_once($_SERVER["DOCUMENT_ROOT"].'/config.php');
-$users_shop = mysql_query("SELECT * FROM `users_shop` WHERE `token`='$token'",$db);
-$users_shop_arr = mysql_fetch_assoc($users_shop);
-if($users_shop_arr['id'] !== "$ADMIN_ID"){
-	include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/errHTML.php');exit;
+
+if(count($_POST) !== 0){
+
+
+
+	if(isset($_POST["kkeys"])){
+	$sum = trim($_POST["sum"]);
+	$keysgen = trim($_POST["keysgen"]);
+	$sum1 = trim($_POST["sumedit"]);
+	if(trim($_POST["keysgen"]) == ""){
+		$msg = '<div class="alert alert-danger">Введите количество.</div>';
+	}
+	<if($_POST["sum"] == "0" and $sum1 == ""){
+			$msg = '<div class="alert alert-danger">Введите сумму.</div>';
+	}
+	if($_POST["sum"] == "0" and $sum1 !== "")$sum =$sum1;
+	if(!isset($msg)){
+
+
+		for($a=0;$a<$keysgen;$a++){
+$ttext =$KEYPASS;
+$re = substr($re,1);
+$time = time();
+$rand = rand(1,$time).$time;
+$key = $sum."-".$rand."-".md5($ttext.$rand.$sum);
+$arr[]=$key;
 }
+$result = array_unique($arr);
+$comma_separated = implode("<br>", $result);
+		$msg =<<<HTML
+		<div class="alert alert-info">
+		<button type="button" onclick="location.href = '/admin.php?#1';"  class="btn btn-primary">Очистить</button><br>
+				$comma_separated
+		</div>
+<HTML;
+	}
+	}else{
+	$id = @mysql_real_escape_string(trim($_POST["iduser"]));
+	$m = @mysql_real_escape_string(trim($_POST["money"]));
+	if($id == ""){
+		$msg = '<div class="alert alert-danger">Введите ID пользователя.</div>';
+		}else{
+//ПОИСК
+		if(isset($_POST["info"])){
+		$result = mysql_query("SELECT * FROM `users_shop` WHERE `id`='$id'") or die(mysql_error());
+		$myrow = mysql_fetch_assoc($result);
+
+		if($myrow["ban"]=="1"){$ban = "Есть";}else{$ban = "Нет";}
+		$msg =<<<HTML
+		<div class="alert alert-info">
+		<div style=""><img width="26" src="{$myrow["img"]}">   {$myrow["last_name"]}  {$myrow["first_name"]} </div>
+	[money] = {$myrow["money"]} <br>
+    [uid] = {$myrow["uid"]} <br>
+	[бан] = {$ban} <br>
+    [авторизация] = {$myrow["network"]} <br>
+    [identity] = {$myrow["identity"]} <br>
+    [trade_url] =  {$myrow["trade_url"]}
+		</div>
+<HTML;
+if($myrow["network"] == "")$msg = '<div class="alert alert-danger">Пользователя с таким ID нет.</div>';
+//ПОИСК END
 }else{
-	   header('Location: http://'.$_SERVER["HTTP_HOST"]);
+//Управление
+
+if($_POST["moneysel"] == 1){
+	mysql_query("UPDATE `users_shop` set `money` = money + $m where `id` = '$id'");
+}
+if($_POST["moneysel"] == 2){
+	mysql_query("UPDATE `users_shop` set `money` = money - $m where `id` = '$id'");
+}
+if($_POST["moneysel"] == 3){
+	mysql_query("UPDATE `users_shop` set `money` = $m where `id` = '$id'");
+}
+
+
+if($_POST["ban"] == 1){
+	mysql_query("UPDATE `users_shop` set `ban` = 1 where `id` = '$id'");
+}
+if($_POST["ban"] == 2){
+	mysql_query("UPDATE `users_shop` set `ban` = 0 where `id` = '$id'");
+}
+
+$result = mysql_query("SELECT * FROM `users_shop` WHERE `id`='$id'") or die(mysql_error());
+		$myrow = mysql_fetch_assoc($result);
+
+		if($myrow["ban"]=="1"){$ban = "Есть";}else{$ban = "Нет";}
+		$msg =<<<HTML
+		<div class="alert alert-info">
+		<div style=""><img width="26" src="{$myrow["img"]}">   {$myrow["last_name"]}  {$myrow["first_name"]} </div>
+	[money] = {$myrow["money"]} <br>
+    [uid] = {$myrow["uid"]} <br>
+	[бан] = {$ban} <br>
+    [авторизация] = {$myrow["network"]} <br>
+    [identity] = {$myrow["identity"]} <br>
+    [trade_url] =  {$myrow["trade_url"]}
+		</div>
+HTML;
+if($myrow["network"] == "")$msg = '<div class="alert alert-danger">Пользователя с таким ID нет.</div>';
+//Управление END
+}
+
+
+		}
+
+
+}
 
 }
 
 
 
-$host = $_SERVER["HTTP_HOST"];?> 
-<?error_reporting(0);?><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+
+
+
+
+
+
+
+
+?>
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>CSGODevice - Обнови свой инвентарь!</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
-    <link href="<?echo $host;?>assets/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
+    <link href="<?echo "http://".$host;?>assets/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
 	<script src="./js/jquery.js"></script>
 	<script type="text/javascript" src="./js/jquery-ui.js"></script>
 	<script type="text/javascript" src="./js/tinymce.min.js"></script>
@@ -46,7 +158,7 @@ font-size: 14px;
 line-height: 1.428571429;
 color: #5C5C5C;
 vertical-align: middle;
-background-color: #fff;  
+background-color: #fff;
 border: 1px solid #ccc;
 border-radius: 4px;
 -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
@@ -54,7 +166,7 @@ box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
 -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
- </style> 
+ </style>
  </head>
   <body>
     <div class="navbar navbar-static-top navbar-inverse">
@@ -66,7 +178,7 @@ transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			  </button>
-			 <a class="navbar-brand" href="http://<?echo $host;?>"><b><?echo $host;?></b> - Обнови свой инвентарь!</a>
+			 <a class="navbar-brand" href="<?echo "http://".$host;?>"><b><?echo $host;?></b> - Обнови свой инвентарь!</a>
 			</div>
 			<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
 				<ul class="nav navbar-nav">
@@ -82,109 +194,77 @@ include_once($_SERVER["DOCUMENT_ROOT"].'/t/admin_menu.php');
 	</div>
 	<div class="container">
 		<div class="row">
-			<div class="col-lg-11">
-			<h3>Список выпадающего оружия из сундука</h3>
-<form action="<?echo $urlFile1;?>" method="post" accept-charset="utf-8"><table class="table">
-	<tbody>
-	    <thead>
-		
-        <tr>
-<td><b>Сундук</b></td>
-<td><b>Название</b></td>
-<td><b>Тип</b></td>
-<td><b>Доступность</b></td>
-<td><b>Шанс в %</b></td>
-        </tr> 
-    </thead>
-	<style>
-.milspec{
-	color:#4B69FF;
-}
-.restricted{
-	color:rgba(136, 71, 255, 0.98);
-}
-.classified{
-	color:#D32CE6;
-}
-.covert{
-	color:#EB4B4B;
-}
-.rare{
-	color:#FFD700;
-}
 
-</style>
-<?
-
-include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/classCases.php');
-
-$id = base64_decode($_GET["id"]);
-
-if(count($_POST) !== 0){
-	
-include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/configRandom.php');
-$caseR[$id] =  $_POST;
-$tmp = '<?php $cron_tmp="'.base64_encode( json_encode( $caseR ) ).'"; $casetmp= json_decode(base64_decode($cron_tmp),true); foreach($casetmp as $k=>$v){$k = str_replace("_"," ",$k);$caseR[$k]=$v;} ?> ';
-file_put_contents($_SERVER["DOCUMENT_ROOT"].'/ajax/configRandom.php', $tmp);
-
-}else{
-	include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/configRandom.php');
-}
-
-
-if($arr[$id][0] == "")exit('<span style="color:red">Не задан параметр id (Не выбран кейс или такого не существует) </span><a href="/admin.php?case">Перейти в настройки списка</a><p>');
-foreach($arr[$id] as $k => $v){
-	$indexNAME=$v[0]." ".$v[1]; 
-	$indexCOLOR=$v[2]; 
-	$indexCASE=$id;
-	$encode =  $v[0];
-
-		if($caseR[$id][$k]["open"] !== "true" || $caseR[$id][$k]["price"] == ""){
-		$selected = '
-<td><select name="'.$k.'[open]"  onChange="this.style.color=this.options[this.selectedIndex].style.color"   style="color:red" class="form-control">
-<option style="color:green"  value="true" >Вкл</option>
-<option style="color:red"  value="false"selected="selected">Выкл</option>';
-	}else{
-		$selected = '
-<td><select name="'.$k.'[open]" onChange="this.style.color=this.options[this.selectedIndex].style.color"  style="color:green" class="form-control">
-<option style="color:green" value="true" selected="selected">Вкл</option>
-<option style="color:red" value="false">Выкл</option>';
-	} 
-	
-
-	$htmlecho .=<<<HTML
-	<tr>
-     	<td>$indexCASE</td>
-		<td  class="$indexCOLOR">$indexNAME</td>
-		<td>$indexCOLOR</td>
-$selected
-</select></td><td><input type="text" name="{$k}[price]" value="{$caseR[$id][$k]["price"]}" class="form-control"></td>
+			<div class="col-lg-8">
+			<? print_r($msg);?>
+			<h3>Управление пользователями</h3>
+<form action="<?echo $urlFile1;?>" method="post" accept-charset="utf-8" ><table class="table">
+	<tbody><tr>
+		<td>#ID пользователя:</td>
+		<td><input type="text" name="iduser" placeholder="Введите id для действия" value="<?if(count($_POST) !== 0){echo $id;}?>" class="form-control"></td>
+		<td><input type="submit" name="info" value="Поиск" class="btn btn-primary"></td>
 	</tr>
-	
-HTML;
 
-//	print_r($v);
-}
 
-echo $htmlecho;
-?>
-<input type="submit" value="Сохранить" class="btn btn-primary"> 
-<a type="button"  href="/admin.php?case" value="Назад" class="btn btn-primary">Назад</a><p>
+	<tr>
+		<td>Управление балансом:</td>
+		<td><select name="moneysel" class="form-control">
+<option value="0" selected="selected">Ничего не делать</option>
+<option value="1" >Пополнить</option>
+<option value="2">Снять</option>
+<option value="3">Установить</option>
+</select></td>
 
+<td><input type="text" name="money" value="" placeholder="Введите значение" class="form-control"></td>
+
+	</tr>
+
+		<tr>
+		<td>Управление банами:</td>
+		<td><select name="ban" class="form-control">
+<option value="0" selected="selected">Ничего не делать</option>
+<option value="1" >Забанить</option>
+<option value="2">Разбанить</option>
+</select></td>
+	</tr>
+
+	<tr>
+		<td></td>
+
+		<td><input type="submit" value="Выполнить" class="btn btn-primary"></td>
+	</tr>
 </tbody></table>
-<input type="submit" value="Сохранить" class="btn btn-primary"> 
-<a type="button"  href="/case.php" value="Назад" class="btn btn-primary">Назад</a>
-</form>			</div>
-						<div class="col-lg-4">
-			
-			</div>
-					</div>
-	</div>
 
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="./js/bootstrap.min.js"></script>
+</form>
 
-    <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
-    <script src="./js/respond.js"></script>
-  
-</body></html>
+<h3>Управление ключами</h3>
+<form action="<?echo $urlFile1;?>" method="post" accept-charset="utf-8" ><table class="table">
+	<tbody><tr>
+		<td>Генерировать ключей:</td>
+		<td><input type="text" name="keysgen" value="" placeholder="Количество" class="form-control"></td>
+
+	</tr>
+
+
+
+		<tr>
+		<td>Управление номиналом:</td>
+		<td><select name="sum" class="form-control">
+<option value="0" selected="selected">Ввести сумму в поле </option>
+<option value="10" >10 руб</option>
+<option value="100" >100 руб</option>
+<option value="500" >500 руб</option>
+<option value="1000" >1000 руб</option>
+</select></td>
+<td><input type="text" name="sumedit" value="" placeholder="Сумма" class="form-control"></td>
+	</tr>
+
+	<tr>
+		<td></td>
+
+		<td><input type="submit" name="kkeys" value="Сохранить" class="btn btn-primary"></td>
+	</tr>
+</tbody></table>
+
+</form>
+	</div></div></div></body></html>

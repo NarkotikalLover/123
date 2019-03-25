@@ -1,134 +1,21 @@
-<? 
-
+<?
 if($_SERVER["PHP_SELF"] !== "/admin.php"){
 	header('Location: http://'.$_SERVER["HTTP_HOST"].'/admin.php');exit;
-} 
-$host = $_SERVER["HTTP_HOST"]; 
-//error_reporting(0);
-include_once($_SERVER["DOCUMENT_ROOT"].'/config.php');
+}
 
+$host = $_SERVER["HTTP_HOST"];
+error_reporting(0);
 if(count($_POST) !== 0){
+include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/configSettings.php');
+foreach($_POST as $key => $val)$caseS[$key] =  $val;
+$tmp = '<?php $cron_tmp="'.base64_encode( json_encode( $caseS ) ).'"; $casetmp= json_decode(base64_decode($cron_tmp),true); foreach($casetmp as $k=>$v){$k = str_replace("_","_",$k);$caseS[$k]=$v;} ?> ';
+file_put_contents($_SERVER["DOCUMENT_ROOT"].'/ajax/configSettings.php', $tmp);
 
-		
-	
-	if(isset($_POST["kkeys"])){
-	$sum = trim($_POST["sum"]);
-	$keysgen = trim($_POST["keysgen"]);
-	$sum1 = trim($_POST["sumedit"]);
-	if(trim($_POST["keysgen"]) == ""){
-		$msg = '<div class="alert alert-danger">Введите количество.</div>';
-	}
-	if($_POST["sum"] == "0" and $sum1 == ""){
-			$msg = '<div class="alert alert-danger">Введите сумму.</div>';
-	}
-	if($_POST["sum"] == "0" and $sum1 !== "")$sum =$sum1;
-	if(!isset($msg)){
-			
-
-		for($a=0;$a<$keysgen;$a++){
-$ttext =$KEYPASS;
-$re = substr($re,1);
-$time = time();
-$rand = rand(1,$time).$time;
-$key = $sum."-".$rand."-".md5($ttext.$rand.$sum);
-$arr[]=$key;
-}
-$result = array_unique($arr);
-$comma_separated = implode("<br>", $result);
-		$msg =<<<HTML
-		<div class="alert alert-info">
-		<button type="button" onclick="location.href = '/admin.php?#1';"  class="btn btn-primary">Очистить</button><br>
-				$comma_separated
-		</div>
-HTML;
-	}
-	}else{
-	$id = @mysql_real_escape_string(trim($_POST["iduser"]));
-	$m = @mysql_real_escape_string(trim($_POST["money"]));
-	if($id == ""){
-		$msg = '<div class="alert alert-danger">Введите ID пользователя.</div>';
-		}else{
-//ПОИСК
-		if(isset($_POST["info"])){
-		$result = mysql_query("SELECT * FROM `users_shop` WHERE `id`='$id'") or die(mysql_error());
-		$myrow = mysql_fetch_assoc($result);
-		
-		if($myrow["ban"]=="1"){$ban = "Есть";}else{$ban = "Нет";}
-		$msg =<<<HTML
-		<div class="alert alert-info">
-		<div style=""><img width="26" src="{$myrow["img"]}">   {$myrow["last_name"]}  {$myrow["first_name"]} </div>
-	[money] = {$myrow["money"]} <br>
-    [uid] = {$myrow["uid"]} <br>
-	[бан] = {$ban} <br>
-    [авторизация] = {$myrow["network"]} <br>
-    [identity] = {$myrow["identity"]} <br>
-    [trade_url] =  {$myrow["trade_url"]}
-		</div>
-HTML;
-if($myrow["network"] == "")$msg = '<div class="alert alert-danger">Пользователя с таким ID нет.</div>';
-//ПОИСК END
 }else{
-//Управление
-
-if($_POST["moneysel"] == 1){
-	mysql_query("UPDATE `users_shop` set `money` = money + $m where `id` = '$id'");
+	include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/configSettings.php');
 }
-if($_POST["moneysel"] == 2){
-	mysql_query("UPDATE `users_shop` set `money` = money - $m where `id` = '$id'");
-}
-if($_POST["moneysel"] == 3){
-	mysql_query("UPDATE `users_shop` set `money` = $m where `id` = '$id'");
-}
-
-
-if($_POST["ban"] == 1){
-	mysql_query("UPDATE `users_shop` set `ban` = 1 where `id` = '$id'");
-}
-if($_POST["ban"] == 2){
-	mysql_query("UPDATE `users_shop` set `ban` = 0 where `id` = '$id'");
-}
-
-$result = mysql_query("SELECT * FROM `users_shop` WHERE `id`='$id'") or die(mysql_error());
-		$myrow = mysql_fetch_assoc($result);
-		
-		if($myrow["ban"]=="1"){$ban = "Есть";}else{$ban = "Нет";}
-		$msg =<<<HTML
-		<div class="alert alert-info">
-		<div style=""><img width="26" src="{$myrow["img"]}">   {$myrow["last_name"]}  {$myrow["first_name"]} </div>
-	[money] = {$myrow["money"]} <br>
-    [uid] = {$myrow["uid"]} <br>
-	[бан] = {$ban} <br>
-    [авторизация] = {$myrow["network"]} <br>
-    [identity] = {$myrow["identity"]} <br>
-    [trade_url] =  {$myrow["trade_url"]}
-		</div>
-HTML;
-if($myrow["network"] == "")$msg = '<div class="alert alert-danger">Пользователя с таким ID нет.</div>';
-//Управление END
-}
-
-
-		}
-		
-		
-}
- 
-}
-
-
-
-
-
-
-
-
-
-
-
-
 
 ?>
-
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>CSGODevice - Обнови свой инвентарь!</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -174,11 +61,11 @@ transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 			<div class="navbar-header">
 			  <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
 				<span class="sr-only">Развернуть/Свернуть</span>
-				<span class="icon-bar"></span> 
+				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			  </button>
-			 <a class="navbar-brand" href="<?echo "http://".$host;?>"><b><?echo $host;?></b> - Обнови свой инвентарь!</a>
+			 <a class="navbar-brand" href="http://<?echo $host;?>"><b><?echo $host;?></b> - Обнови свой инвентарь!</a>
 			</div>
 			<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
 				<ul class="nav navbar-nav">
@@ -187,83 +74,78 @@ include_once($_SERVER["DOCUMENT_ROOT"].'/t/admin_menu.php');
 ?>
 				</ul>
 				<ul class="nav navbar-nav pull-right">
-					<li><a href="http://<?echo $host;?>/?logout"><i class="glyphicon glyphicon-off"></i> Выйти</a></li> 
-				</ul> 
+					<li><a href="http://<?echo $host;?>/?logout">Выйти</a></li>
+				</ul>
 			</nav>
-		</div> 
+		</div>
 	</div>
 	<div class="container">
 		<div class="row">
-		 
 			<div class="col-lg-8">
-			<? print_r($msg);?>
-			<h3>Управление пользователями</h3>
+			<h3>Настройки скрипта by ventor</h3>
 <form action="<?echo $urlFile1;?>" method="post" accept-charset="utf-8" ><table class="table">
 	<tbody><tr>
-		<td>#ID пользователя:</td>
-		<td><input type="text" name="iduser" placeholder="Введите id для действия" value="<?if(count($_POST) !== 0){echo $id;}?>" class="form-control"></td>
-		<td><input type="submit" name="info" value="Поиск" class="btn btn-primary"></td>
+		<td>Название сайта Storegamer Project:</td>
+		<td><input type="text" name="site_name" value="<?echo $caseS["site_name"];?>" class="form-control"></td>
 	</tr>
-
-	
 	<tr>
-		<td>Управление балансом:</td>
-		<td><select name="moneysel" class="form-control">
-<option value="0" selected="selected">Ничего не делать</option>
-<option value="1" >Пополнить</option>
-<option value="2">Снять</option> 
-<option value="3">Установить</option>
-</select>
-<td><input type="text" name="money" value="" placeholder="Введите значение" class="form-control"></td>
-</td>
+		<td>Теги (Keywords):</td>
+		<td><input type="text" name="sitedescription" value="<?echo $caseS["sitedescription"];?>" class="form-control"></td>
 	</tr>
-	
+	<tr>
+		<td>Описание сайта (Description):</td>
+		<td><textarea name="metadescr" cols="40" rows="10" class="form-control"><?echo $caseS["metadescr"];?></textarea></td>
+	</tr>
+	<tr>
+		<td>Цена продажи товара от * - * руб:</td>
+		<td><input type="text" name="pricesell" value="<?echo $caseS["pricesell"];?>" class="form-control"></td>
+	</tr>
 		<tr>
-		<td>Управление банами:</td>
-		<td><select name="ban" class="form-control">
-<option value="0" selected="selected">Ничего не делать</option>
-<option value="1" >Забанить</option>
-<option value="2">Разбанить</option>
+		<td>Виджет для комментариев(брать в вк)- apiId:</td>
+		<td><input type="text" name="apiId" value="<?echo $caseS["apiId"];?>" class="form-control"></td>
+	</tr>
+    <tr>
+		<td>Поддержка в ВК:</td>
+		<td><input type="text" name="support" value="<?echo $caseS["support"];?>" class="form-control"></td>
+	</tr>
+		<tr>
+		<td>Работа сайта(off,on):</td>
+	<?
+	<select>
+
+		if($caseS["site_on"] !== "1"){
+		$selected = '
+<td><select name="site_on"  onChange="this.style.color=this.options[this.selectedIndex].style.color"   style="color:red" class="form-control">
+<option style="color:green"  value="1" >Включён</option>
+<option style="color:red"  value="0"selected="selected">Выключен</option>';
+	}else{
+		$selected = '
+<td><select name="site_on" onChange="this.style.color=this.options[this.selectedIndex].style.color"  style="color:green" class="form-control">
+<option style="color:green" value="1" selected="selected">Включён</option>
+<option style="color:red" value="0">Выключен</option>';
+	}
+	print_r($selected);
+	?>
+
 </select></td>
 	</tr>
-	
+
 	<tr>
 		<td></td>
-		
-		<td><input type="submit" value="Выполнить" class="btn btn-primary"></td>
+		<td><input type="submit" name="submit" value="Сохранить" class="btn btn-primary"></td>
 	</tr>
 </tbody></table>
+</form>			</div>
+						<div class="col-lg-4">
 
-</form>		
+			</div>
+					</div>
+	</div>
 
-<h3>Управление ключами</h3>
-<form action="<?echo $urlFile1;?>" method="post" accept-charset="utf-8" ><table class="table">
-	<tbody><tr>
-		<td>Генерировать ключей:</td>
-		<td><input type="text" name="keysgen" value="" placeholder="Количество" class="form-control"></td>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="./Quick-Accs - Магазин компьютерных игр админ-панель_files/bootstrap.min.js"></script>
 
-	</tr>
+    <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+    <script src="./Quick-Accs - Магазин компьютерных игр админ-панель_files/respond.js"></script>
 
-	
-	
-		<tr>
-		<td>Управление номиналом:</td>
-		<td><select name="sum" class="form-control">
-<option value="0" selected="selected">Ввести сумму в поле </option>
-<option value="10" >10 руб</option>
-<option value="100" >100 руб</option>
-<option value="500" >500 руб</option>
-<option value="1000" >1000 руб</option>
-</select></td>
-<td><input type="text" name="sumedit" value="" placeholder="Сумма" class="form-control"></td>
-	</tr>
-	
-	<tr>
-		<td></td>
-		
-		<td><input type="submit" name="kkeys" value="Сохранить" class="btn btn-primary"></td>
-	</tr>
-</tbody></table>
-
-</form>
-	</div></div></div></body></html>
+</body></html>

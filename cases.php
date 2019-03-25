@@ -1,26 +1,27 @@
-<? 
-if($_SERVER["PHP_SELF"] !== "/admin.php"){
-	header('Location: http://'.$_SERVER["HTTP_HOST"].'/admin.php');exit;
-} 
+﻿<?
 
-$host = $_SERVER["HTTP_HOST"]; 
-error_reporting(0);
-if(count($_POST) !== 0){
-include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/configSettings.php');
-foreach($_POST as $key => $val)$caseS[$key] =  $val;
-$tmp = '<?php $cron_tmp="'.base64_encode( json_encode( $caseS ) ).'"; $casetmp= json_decode(base64_decode($cron_tmp),true); foreach($casetmp as $k=>$v){$k = str_replace("_","_",$k);$caseS[$k]=$v;} ?> ';
-file_put_contents($_SERVER["DOCUMENT_ROOT"].'/ajax/configSettings.php', $tmp);
+if(trim($_COOKIE["token"]) !== ""){
+$token = $_COOKIE["token"];
 
+include_once($_SERVER["DOCUMENT_ROOT"].'/config.php');
+$users_shop = mysql_query("SELECT * FROM `users_shop` WHERE `token`='$token'",$db);
+$users_shop_arr = mysql_fetch_assoc($users_shop);
+if($users_shop_arr['id'] !== "$ADMIN_ID"){
+	include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/errHTML.php');exit;
+}
 }else{
-	include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/configSettings.php');
+	   header('Location: http://'.$_SERVER["HTTP_HOST"]);
+
 }
 
-?>
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+$host = $_SERVER["HTTP_HOST"];?>
+<?error_reporting(0);?><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>CSGODevice - Обнови свой инвентарь!</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
-    <link href="<?echo "http://".$host;?>assets/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
+    <link href="<?echo $host;?>assets/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
 	<script src="./js/jquery.js"></script>
 	<script type="text/javascript" src="./js/jquery-ui.js"></script>
 	<script type="text/javascript" src="./js/tinymce.min.js"></script>
@@ -74,77 +75,117 @@ include_once($_SERVER["DOCUMENT_ROOT"].'/t/admin_menu.php');
 ?>
 				</ul>
 				<ul class="nav navbar-nav pull-right">
-					<li><a href="http://<?echo $host;?>/?logout">Выйти</a></li>
+					<li><a href="http://<?echo $host;?>/?logout"><i class="glyphicon glyphicon-off"></i> Выйти</a></li>
 				</ul>
 			</nav>
 		</div>
 	</div>
 	<div class="container">
 		<div class="row">
-			<div class="col-lg-8">
-			<h3>Настройки скрипта by ventor</h3>
-<form action="<?echo $urlFile1;?>" method="post" accept-charset="utf-8" ><table class="table">
-	<tbody><tr>
-		<td>Название сайта Storegamer Project:</td>
-		<td><input type="text" name="site_name" value="<?echo $caseS["site_name"];?>" class="form-control"></td>
-	</tr>
-	<tr>
-		<td>Теги (Keywords):</td>
-		<td><input type="text" name="sitedescription" value="<?echo $caseS["sitedescription"];?>" class="form-control"></td>
-	</tr>
-	<tr>
-		<td>Описание сайта (Description):</td>
-		<td><textarea name="metadescr" cols="40" rows="10" class="form-control"><?echo $caseS["metadescr"];?></textarea></td>
-	</tr>
-	<tr>
-		<td>Цена продажи товара от * - * руб:</td>
-		<td><input type="text" name="pricesell" value="<?echo $caseS["pricesell"];?>" class="form-control"></td>
-	</tr>
-		<tr>
-		<td>Виджет для комментариев(брать в вк)- apiId:</td>
-		<td><input type="text" name="apiId" value="<?echo $caseS["apiId"];?>" class="form-control"></td>
-	</tr>
-    <tr>
-		<td>Поддержка в ВК:</td>
-		<td><input type="text" name="support" value="<?echo $caseS["support"];?>" class="form-control"></td>
-	</tr>
-		<tr>
-		<td>Работа сайта(off,on):</td>
-	<? 
-	
-		if($caseS["site_on"] !== "1"){
+			<div class="col-lg-11">
+			<h3>Список выпадающего оружия из сундука</h3>
+<form action="<?echo $urlFile1;?>" method="post" accept-charset="utf-8"><table class="table">
+	<tbody>
+	    <thead>
+
+        <tr>
+<td><b>Сундук</b></td>
+<td><b>Название</b></td>
+<td><b>Тип</b></td>
+<td><b>Доступность</b></td>
+<td><b>Шанс в %</b></td>
+        </tr>
+    </thead>
+	<style>
+.milspec{
+	color:#4B69FF;
+}
+.restricted{
+	color:rgba(136, 71, 255, 0.98);
+}
+.classified{
+	color:#D32CE6;
+}
+.covert{
+	color:#EB4B4B;
+}
+.rare{
+	color:#FFD700;
+}
+
+</style>
+<?
+
+include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/classCases.php');
+
+$id = base64_decode($_GET["id"]);
+
+if(count($_POST) !== 0){
+
+include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/configRandom.php');
+$caseR[$id] =  $_POST;
+$tmp = '<?php $cron_tmp="'.base64_encode( json_encode( $caseR ) ).'"; $casetmp= json_decode(base64_decode($cron_tmp),true); foreach($casetmp as $k=>$v){$k = str_replace("_"," ",$k);$caseR[$k]=$v;} ?> ';
+file_put_contents($_SERVER["DOCUMENT_ROOT"].'/ajax/configRandom.php', $tmp);
+
+}else{
+	include_once($_SERVER["DOCUMENT_ROOT"].'/ajax/configRandom.php');
+}
+
+
+if($arr[$id][0] == "")exit('<span style="color:red">Не задан параметр id (Не выбран кейс или такого не существует) </span><a href="/admin.php?case">Перейти в настройки списка</a><p>');
+foreach($arr[$id] as $k => $v){
+	$indexNAME=$v[0]." ".$v[1];
+	$indexCOLOR=$v[2];
+	$indexCASE=$id;
+	$encode =  $v[0];
+
+		if($caseR[$id][$k]["open"] !== "true" || $caseR[$id][$k]["price"] == ""){
 		$selected = '
-<td><select name="site_on"  onChange="this.style.color=this.options[this.selectedIndex].style.color"   style="color:red" class="form-control">
-<option style="color:green"  value="1" >Включён</option>
-<option style="color:red"  value="0"selected="selected">Выключен</option>';
+<td><select name="'.$k.'[open]"  onChange="this.style.color=this.options[this.selectedIndex].style.color"   style="color:red" class="form-control">
+<option style="color:green"  value="true" >Вкл</option>
+<option style="color:red"  value="false"selected="selected">Выкл</option>';
 	}else{
 		$selected = '
-<td><select name="site_on" onChange="this.style.color=this.options[this.selectedIndex].style.color"  style="color:green" class="form-control">
-<option style="color:green" value="1" selected="selected">Включён</option>
-<option style="color:red" value="0">Выключен</option>';
-	} 
-	print_r($selected);
-	?>
+<td><select name="'.$k.'[open]" onChange="this.style.color=this.options[this.selectedIndex].style.color"  style="color:green" class="form-control">
+<option style="color:green" value="true" selected="selected">Вкл</option>
+<option style="color:red" value="false">Выкл</option>';
+	}
 
-</select></td>
-	</tr>
-	
+
+	$htmlecho .=<<<HTML
 	<tr>
-		<td></td>
-		<td><input type="submit" name="submit" value="Сохранить" class="btn btn-primary"></td>
-	</tr>
+     	<td>$indexCASE</td>
+		<td  class="$indexCOLOR">$indexNAME</td>
+		<td>$indexCOLOR</td>
+		$selected
+</tr>
+</select></td><td><input type="text" name="{$k}[price]" value="{$caseR[$id][$k]["price"]}" class="form-control"></td>
+
+<
+HTML;
+
+//	print_r($v);
+}
+
+echo $htmlecho;
+?>
+<input type="submit" value="Сохранить" class="btn btn-primary"> 
+<a type="button"  href="/admin.php?case" value="Назад" class="btn btn-primary">Назад</a><p>
+
 </tbody></table>
+<input type="submit" value="Сохранить" class="btn btn-primary"> 
+<a type="button"  href="/case.php" value="Назад" class="btn btn-primary">Назад</a>
 </form>			</div>
 						<div class="col-lg-4">
-			
+
 			</div>
 					</div>
 	</div>
 
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="./Quick-Accs - Магазин компьютерных игр админ-панель_files/bootstrap.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
 
     <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
-    <script src="./Quick-Accs - Магазин компьютерных игр админ-панель_files/respond.js"></script>
-  
+    <script src="./js/respond.js"></script>
+
 </body></html>
