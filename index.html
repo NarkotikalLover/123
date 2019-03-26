@@ -152,7 +152,7 @@ $uid = $user["uid"];
            document.cookie="token=$token; path=/; expires="+date.toUTCString();
            document.cookie="uid=$uid; path=/; expires="+date.toUTCString();
 		   </script>
-HTML;
+<HTML;
 
  if(!isset($user["error"])){
  echo <<<HTML
@@ -161,7 +161,7 @@ HTML;
            document.cookie="token=$token; path=/; expires="+date.toUTCString();
            document.cookie="uid=$uid; path=/; expires="+date.toUTCString();
 		   </script>
-HTML;
+<HTML;
 
 include "config.php";
 $uid = $user["uid"];
@@ -197,12 +197,12 @@ $token_count = 1;
 			$user = $users_shop_arr;
 
  echo <<<HTML
-		   <script type="text/javascript">
+
 		   var date = new Date( new Date().getTime() + 14400*1000 );
            document.cookie="token=$token; path=/; expires="+date.toUTCString();
            document.cookie="uid=$uid; path=/; expires="+date.toUTCString();
 		   </script>
-HTML;
+<HTML;
 
 }
 }
