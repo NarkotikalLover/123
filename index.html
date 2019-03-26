@@ -19,7 +19,7 @@ $disingerHtml = <<<HTML
 					</div>
 				</div></div>
 
-HTML;
+<HTML;
 if($caseS["digiseller"]["on"] == "1"){$payHtml .=$disingerHtml;}
 if($caseS["primearea"]["on"] == "1"){$payHtml .=$pimeriaHtml;}
 
@@ -89,9 +89,6 @@ p {
 HTML>
 exit;
 }
-//open: "true" - Включить кейс, false - Выключить кейс
-//price: цена на кейс
-//Если вы выключили некоторые кейсы и они теперь они не ровные то найдите в файле index.php строку неровного кейса и в классе class="item-wrapper small" удалите small
 
 $echo =<<<HTML
 
