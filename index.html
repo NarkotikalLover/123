@@ -231,7 +231,7 @@ $moneybalance = $users_shop_arr["money"];
 			     break;
 			  case "steam":
 
- //Прежде всего вам понадобится apikey. Зарегистрировать его можно здесь http://steamcommunity.com/dev/apikey (Заменить 47F82A866F31B5F7E07BC86FE4A3C265)
+
 				 $request = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=47F82A866F31B5F7E07BC86FE4A3C265&steamids=' . $user['uid'];
 				 $response = file_get_contents($request);
 				 $info = json_decode($response,"true");
